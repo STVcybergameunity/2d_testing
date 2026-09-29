@@ -13,11 +13,6 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask floorGrass;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -26,13 +21,13 @@ public class PlayerScript : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
 
         // If you are on the ground allow jumping
-        if (Input.GetButtonDown("Jump") && IsGrounded())
+        if (Input.GetKey(KeyCode.Space) && IsGrounded())
         {
             rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, jumpingPower);
         }
 
         // Allows the player to let go early to start falling down
-        if (Input.GetButtonUp("Jump") && rigid2D.linearVelocity.y > 0f)
+        if (Input.GetKeyUp(KeyCode.Space) && rigid2D.linearVelocity.y > 0f)
         {
             rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, rigid2D.linearVelocity.y * 0.5f);
         }
