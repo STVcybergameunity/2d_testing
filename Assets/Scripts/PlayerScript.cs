@@ -16,11 +16,13 @@ public class PlayerScript : MonoBehaviour
     private float coyoteTimeCounter;
     private float jumpbufferTime = 0.2f;
     private float jumpbufferCounter;
+    
+    private Vector2 groundCheckSize = new Vector2(1f, 0.1f);
 
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask floorGrass;
-    [SerializeField] private Vector2 groundCheckSize = new Vector2(1f, 0.1f);
+    
 
     // Update is called once per frame
     void Update()
@@ -45,7 +47,7 @@ public class PlayerScript : MonoBehaviour
 
     private void Jump()
     {
-                // Allows the player to jump slightly after faling off a platform
+        // Allows the player to jump slightly after faling off a platform
         if (IsGrounded())
         {
             coyoteTimeCounter = coyoteTime;
