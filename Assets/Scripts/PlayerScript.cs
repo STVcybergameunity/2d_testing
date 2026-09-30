@@ -1,28 +1,28 @@
-using System;
-using NUnit.Framework;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
     private float horizontal;
     private float speed = 8f;
-    private float runSpeed = 12f;
-    private float jumpingPower = 16f;
+    private float runSpeed = 10f;
+    private float baseGravity = 6f;
     private bool isFacingRight = true;
 
-    private float coyoteTime = 0.2f;
-    private float coyoteTimeCounter;
-    private float jumpbufferTime = 0.2f;
-    private float jumpbufferCounter;
-    
-    private Vector2 groundCheckSize = new Vector2(1f, 0.1f);
+    // Dash
+    private bool isDashing = false;
+    private bool dashRequested = false;
+    private float dashGravity = 0f;
+    private float dashSpeedMultiplier = 3f;
+    private float dashTime = 0.35f;
+    private float dashCooldown = 5.5f;
+    private float dashTimeCounter;
+    private float dashCooldownCounter;
+    private float dashDirection;
 
-    [SerializeField] private Rigidbody2D rigid2D;
-    [SerializeField] private Transform groundCheck;
+    private Vector2 groundCheckSize = new Vector2(0.93f, 0.1f);
     [SerializeField] private LayerMask floorGrass;
-    
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Rigidbody2D rigid2D;
 
     // Update is called once per frame
     void Update()
@@ -30,67 +30,62 @@ public class PlayerScript : MonoBehaviour
         // Checks what way you are going
         horizontal = Input.GetAxisRaw("Horizontal");
 
-        Jump();
+        if (Input.GetKeyDown(KeyCode.RightShift))
+        {
+            dashRequested = true;
+        }
 
         Flip();
     }
 
     private void FixedUpdate()
     {
-        rigid2D.linearVelocity = new Vector2(horizontal * speed, rigid2D.linearVelocity.y);
-
-        if (Input.GetKey(KeyCode.LeftShift))
+        // Cooldown countdown
+        if (dashCooldownCounter > 0f)
         {
-            rigid2D.linearVelocity = new Vector2(horizontal * runSpeed, rigid2D.linearVelocity.y);
-        }
-    }
-
-    private void Jump()
-    {
-        // Allows the player to jump slightly after faling off a platform
-        if (IsGrounded())
-        {
-            coyoteTimeCounter = coyoteTime;
-        }
-        else
-        {
-            coyoteTimeCounter -= Time.deltaTime;
+            dashCooldownCounter -= Time.fixedDeltaTime;
         }
 
-        // Allows the player to jump slightly before they hit the floor
-        if (Input.GetKey(KeyCode.Space))
+        // Start a dash
+        if (dashRequested && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
         {
-            jumpbufferCounter = jumpbufferTime;
+            isDashing = true;
+            dashTimeCounter = dashTime;
+            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, dashGravity);
+
+            // Lock direction: input direction, or the way the player is facing if standing still
+            dashDirection = horizontal != 0f ? horizontal : (isFacingRight ? 1f : -1f);
+
+            rigid2D.gravityScale = dashGravity;
         }
-        else
+        dashRequested = false;
+
+        // While dashing, the dash overrides all other horizontal movement
+        if (isDashing)
         {
-            jumpbufferCounter -= Time.deltaTime;
+            rigid2D.linearVelocity = new Vector2(dashDirection * runSpeed * dashSpeedMultiplier, rigid2D.linearVelocity.y);
+
+            dashTimeCounter -= Time.fixedDeltaTime;
+            if (dashTimeCounter <= 0f)
+            {
+                isDashing = false;
+                rigid2D.gravityScale = baseGravity;
+                dashCooldownCounter = dashCooldown; // cooldown starts when the dash ends
+            }
+
+            return; // skip normal movement
         }
 
-        // If you are on the ground allow jumping
-        if (jumpbufferCounter > 0 && coyoteTimeCounter > 0f)
-        {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, jumpingPower);
-
-            jumpbufferCounter = 0f;
-        }
-
-        // Allows the player to let go early to start falling down
-        if (Input.GetKeyUp(KeyCode.Space) && rigid2D.linearVelocity.y > 0f)
-        {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, rigid2D.linearVelocity.y * 0.5f);
-
-            coyoteTimeCounter = 0f;
-        }
-    }
-
-    private bool IsGrounded()
-    {
-        return Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0.2f, floorGrass);
+        // Normal movement (walk / run)
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : speed;
+        rigid2D.linearVelocity = new Vector2(horizontal * currentSpeed, rigid2D.linearVelocity.y);
     }
 
     private void Flip()
     {
+        // Don't turn around mid-dash, the direction is locked
+        if (isDashing) return;
+
         // Checks where the player is looking and sets the sprite acordingly
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
@@ -99,5 +94,10 @@ public class PlayerScript : MonoBehaviour
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
+    }
+
+    private bool IsGrounded()
+    {
+        return Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0.2f, floorGrass);
     }
 }
