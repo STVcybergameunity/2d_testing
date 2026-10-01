@@ -42,7 +42,7 @@ public class JumpScript : MonoBehaviour
         // If you are on the ground allow jumping
         if (jumpbufferCounter > 0 && coyoteTimeCounter > 0f)
         {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, jumpingPower);
+            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.y, jumpingPower);
 
             jumpbufferCounter = 0f;
         }
@@ -50,7 +50,7 @@ public class JumpScript : MonoBehaviour
         // Allows the player to let go early to start falling down
         if (Input.GetKeyUp(KeyCode.Space) && rigid2D.linearVelocity.y > 0f)
         {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, rigid2D.linearVelocity.y * 0.5f);
+            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.y, rigid2D.linearVelocity.y * 0.5f);
 
             coyoteTimeCounter = 0f;
         }
