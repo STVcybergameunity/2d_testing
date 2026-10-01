@@ -4,7 +4,7 @@ public class KillScript : MonoBehaviour
 {
     private Vector2 respawnLocation = new Vector2(0f, 0f);
     [SerializeField] private Rigidbody2D rigid2D;
-    [SerializeField] private GameObject deathSmoke;       // drag the prefab here
+    [SerializeField] private GameObject deathSmoke;
     private float smokeLifetime = 0.4f;
 
     void Update()
