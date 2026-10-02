@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &459555444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 459555445}
+  m_Layer: 7
+  m_Name: hitBox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &459555445
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459555444}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 19.3, y: 9.3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1959788395}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +442,7 @@ GameObject:
   - component: {fileID: 1410100174}
   - component: {fileID: 1410100175}
   - component: {fileID: 1410100176}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -578,11 +609,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0355d307465ecbebd9925078e61636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  dashesleft: 0
   floorGrass:
     serializedVersion: 2
     m_Bits: 64
-  groundCheck: {fileID: 1629577727}
+  hitBox: {fileID: 1629577727}
   rigid2D: {fileID: 1410100171}
+  pickUpLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &1410100175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -657,8 +692,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1629577727}
-  m_Layer: 0
-  m_Name: GroundCheck
+  m_Layer: 6
+  m_Name: hitCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -736,6 +771,33 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b1bf155ccfb2a1f28169fd563fb1da9, type: 3}
+--- !u!1 &1959788393 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6634570620236973037, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+  m_PrefabInstance: {fileID: 4530897986174652222}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1959788395 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6445681439668719089, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+  m_PrefabInstance: {fileID: 4530897986174652222}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1959788396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959788393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a315a4f4c0aa8aed7af59a1d20c415c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  pickUpLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  hitBox: {fileID: 459555445}
+  rigid2D: {fileID: 1410100171}
 --- !u!1001 &2110807926
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -805,6 +867,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3534214780129339787, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4290895484949296454, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6445681439668719089, guid: 34752280381d5d3e986b914db8da711c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.3
@@ -849,10 +919,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: DashPickup
       objectReference: {fileID: 0}
+    - target: {fileID: 6634570620236973037, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6445681439668719089, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 459555445}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6634570620236973037, guid: 34752280381d5d3e986b914db8da711c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1959788396}
   m_SourcePrefab: {fileID: 100100000, guid: 34752280381d5d3e986b914db8da711c, type: 3}
 --- !u!1001 &5429879880066239299
 PrefabInstance:
