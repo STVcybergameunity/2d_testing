@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     private float horizontal;
-    private float speed = 8f;
+    private float speed = 6f;
     private float runSpeed = 10f;
     private float baseGravity = 6f;
     private bool isFacingRight = true;
@@ -32,12 +32,12 @@ public class PlayerScript : MonoBehaviour
         // Checks what way you are going
         horizontal = Input.GetAxisRaw("Horizontal");
 
+        Flip();
+        if (dashesleft > 0)
         if (Input.GetKeyDown(KeyCode.RightShift))
         {
             dashRequested = true;
         }
-
-        Flip();
     }
 
     private void FixedUpdate()
@@ -54,7 +54,7 @@ public class PlayerScript : MonoBehaviour
         else
         {
             // Normal movement (walk / run)
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : speed;
+            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
             rigid2D.linearVelocity = new Vector2(horizontal * currentSpeed, rigid2D.linearVelocity.y);
         }
     }
