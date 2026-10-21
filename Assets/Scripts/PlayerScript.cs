@@ -7,6 +7,7 @@ public class PlayerScript : MonoBehaviour
     private float runSpeed = 10f;
     private float baseGravity = 6f;
     private bool isFacingRight = true;
+    private Animator animator;
 
     // Dash
     private bool isDashing = false;
@@ -26,11 +27,19 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private LayerMask pickUpLayer;
 
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
     // Update is called once per frame
     void Update()
     {
         // Checks what way you are going
         horizontal = Input.GetAxisRaw("Horizontal");
+
+        checkAnimation();
 
         Flip();
         if (dashesleft > 0)
@@ -42,10 +51,7 @@ public class PlayerScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (dashesleft > 0)
-        {
-            Dash();
-        }
+        Dash();
 
         if (isDashing)
         {
@@ -56,6 +62,18 @@ public class PlayerScript : MonoBehaviour
             // Normal movement (walk / run)
             float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
             rigid2D.linearVelocity = new Vector2(horizontal * currentSpeed, rigid2D.linearVelocity.y);
+        }
+    }
+
+    private void checkAnimation()
+    {
+        if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A) && IsGrounded())
+        {
+            animator.SetBool("isMoving", true);
+        }
+        else
+        {
+            animator.SetBool("isMoving", false);
         }
     }
 
@@ -83,9 +101,10 @@ public class PlayerScript : MonoBehaviour
         }
 
         // Start a dash
-        if (dashRequested && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
+        if (dashRequested && dashesleft > 0 && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
         {
             isDashing = true;
+            dashesleft--;
             dashTimeCounter = dashTime;
             rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, dashGravity);
 
