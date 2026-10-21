@@ -67,14 +67,15 @@ public class PlayerScript : MonoBehaviour
 
     private void checkAnimation()
     {
-        if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A) && IsGrounded())
+
+        float move = Input.GetAxisRaw("Horizontal");
+
+        if (IsGrounded())
         {
-            animator.SetBool("isMoving", true);
+            animator.SetBool("isMoving", move != 0); 
         }
-        else
-        {
-            animator.SetBool("isMoving", false);
-        }
+
+        animator.SetBool("isJumpingUp", rigid2D.linearVelocityY > 0);
     }
 
     private void Flip()
