@@ -42,10 +42,13 @@ public class PlayerScript : MonoBehaviour
         checkAnimation();
 
         Flip();
+
         if (dashesleft > 0)
-        if (Input.GetKeyDown(KeyCode.RightShift))
         {
-            dashRequested = true;
+            if (Input.GetKeyDown(KeyCode.RightShift))
+            {
+                dashRequested = true;
+            }
         }
     }
 
@@ -57,10 +60,22 @@ public class PlayerScript : MonoBehaviour
         {
             return;
         }
+
+        // currentSpeed is based on pressing shift or not base speed is faster the holding it
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
+        // check if u are standing still on the ground to prevent sliding off ledges
+        bool idleOnGround = IsGrounded() && horizontal == 0f && rigid2D.linearVelocity.y <= 0.01f;
+
+        if (idleOnGround)
+        {
+
+            rigid2D.linearVelocity = Vector2.zero;
+            rigid2D.gravityScale = 0f;
+        }
         else
         {
             // Normal movement (walk / run)
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
+            rigid2D.gravityScale = baseGravity;
             rigid2D.linearVelocity = new Vector2(horizontal * currentSpeed, rigid2D.linearVelocity.y);
         }
     }
@@ -72,16 +87,16 @@ public class PlayerScript : MonoBehaviour
 
         if (IsGrounded())
         {
-            animator.SetBool("isMoving", move != 0); 
+            animator.SetBool("isMoving", move != 0);
         }
 
         animator.SetBool("isJumpingUp", rigid2D.linearVelocityY > 0);
+        animator.SetBool("isFalling", rigid2D.linearVelocityY < 0);
     }
 
     private void Flip()
     {
         // Don't turn around mid-dash, the direction is locked
-        if (isDashing) return;
 
         // Checks where the player is looking and sets the sprite acordingly
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
@@ -109,7 +124,7 @@ public class PlayerScript : MonoBehaviour
             dashTimeCounter = dashTime;
             rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, dashGravity);
 
-            // Lock direction: input direction, or the way the player is facing if standing still
+            // lock the dash direction
             dashDirection = horizontal != 0f ? horizontal : (isFacingRight ? 1f : -1f);
 
             rigid2D.gravityScale = dashGravity;
@@ -145,6 +160,6 @@ public class PlayerScript : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapBox(hitBox.position, hitBoxSize, 0.2f, floorGrass);
+        return Physics2D.OverlapBox(hitBox.position, hitBoxSize, 0f, floorGrass);
     }
 }
