@@ -20,12 +20,11 @@ public class PlayerScript : MonoBehaviour
     private float dashCooldownCounter;
     private float dashDirection;
     [SerializeField] private float dashesleft = 0;
-
+    [SerializeField] private bool isOnGround;
     private Vector2 hitBoxSize = new Vector2(0.93f, 0.1f);
     [SerializeField] private LayerMask floorGrass;
     [SerializeField] private Transform hitBox;
     [SerializeField] private Rigidbody2D rigid2D;
-    [SerializeField] private LayerMask pickUpLayer;
 
 
     void Start()
@@ -36,6 +35,7 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        isOnGround = IsGrounded();
         // Checks what way you are going
         horizontal = Input.GetAxisRaw("Horizontal");
 
@@ -68,7 +68,6 @@ public class PlayerScript : MonoBehaviour
 
         if (idleOnGround)
         {
-
             rigid2D.linearVelocity = Vector2.zero;
             rigid2D.gravityScale = 0f;
         }
@@ -82,22 +81,17 @@ public class PlayerScript : MonoBehaviour
 
     private void checkAnimation()
     {
-
         float move = Input.GetAxisRaw("Horizontal");
+        bool grounded = IsGrounded();
 
-        if (IsGrounded())
-        {
-            animator.SetBool("isMoving", move != 0);
-        }
-
-        animator.SetBool("isJumpingUp", rigid2D.linearVelocityY > 0);
-        animator.SetBool("isFalling", rigid2D.linearVelocityY < 0);
+        // isMoving is only true on the ground, so it can't conflict with jump/fall in the air
+        animator.SetBool("isMoving", grounded && move != 0);
+        animator.SetBool("isJumpingUp", rigid2D.linearVelocity.y > 0.01f);
+        animator.SetBool("isFalling", rigid2D.linearVelocity.y < -0.01f);
     }
 
     private void Flip()
     {
-        // Don't turn around mid-dash, the direction is locked
-
         // Checks where the player is looking and sets the sprite acordingly
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
