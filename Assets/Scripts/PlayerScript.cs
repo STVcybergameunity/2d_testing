@@ -140,6 +140,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    // For debug hitbox
     private void OnDrawGizmos()
     {
         if (hitBox == null) return;
