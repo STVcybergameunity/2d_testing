@@ -7,6 +7,7 @@ public class PlayerScript : MonoBehaviour
     private float runSpeed = 10f;
     private float baseGravity = 6f;
     private bool isFacingRight = true;
+    private Animator animator;
 
     // Dash
     private bool isDashing = false;
@@ -19,51 +20,78 @@ public class PlayerScript : MonoBehaviour
     private float dashCooldownCounter;
     private float dashDirection;
     [SerializeField] private float dashesleft = 0;
-
+    [SerializeField] private bool isOnGround;
     private Vector2 hitBoxSize = new Vector2(0.93f, 0.1f);
     [SerializeField] private LayerMask floorGrass;
     [SerializeField] private Transform hitBox;
     [SerializeField] private Rigidbody2D rigid2D;
-    [SerializeField] private LayerMask pickUpLayer;
+
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     // Update is called once per frame
     void Update()
     {
+        isOnGround = IsGrounded();
         // Checks what way you are going
         horizontal = Input.GetAxisRaw("Horizontal");
 
+        checkAnimation();
+
         Flip();
+
         if (dashesleft > 0)
-        if (Input.GetKeyDown(KeyCode.RightShift))
         {
-            dashRequested = true;
+            if (Input.GetKeyDown(KeyCode.RightShift))
+            {
+                dashRequested = true;
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        if (dashesleft > 0)
-        {
-            Dash();
-        }
+        Dash();
 
         if (isDashing)
         {
             return;
         }
+
+        // currentSpeed is based on pressing shift or not base speed is faster the holding it
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
+        // check if u are standing still on the ground to prevent sliding off ledges
+        bool idleOnGround = IsGrounded() && horizontal == 0f && rigid2D.linearVelocity.y <= 0.01f;
+
+        if (idleOnGround)
+        {
+            rigid2D.linearVelocity = Vector2.zero;
+            rigid2D.gravityScale = 0f;
+        }
         else
         {
             // Normal movement (walk / run)
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
+            rigid2D.gravityScale = baseGravity;
             rigid2D.linearVelocity = new Vector2(horizontal * currentSpeed, rigid2D.linearVelocity.y);
         }
     }
 
+    private void checkAnimation()
+    {
+        float move = Input.GetAxisRaw("Horizontal");
+        bool grounded = IsGrounded();
+
+        // isMoving is only true on the ground, so it can't conflict with jump/fall in the air
+        animator.SetBool("isMoving", grounded && move != 0);
+        animator.SetBool("isJumpingUp", rigid2D.linearVelocity.y > 0.01f);
+        animator.SetBool("isFalling", rigid2D.linearVelocity.y < -0.01f);
+    }
+
     private void Flip()
     {
-        // Don't turn around mid-dash, the direction is locked
-        if (isDashing) return;
-
         // Checks where the player is looking and sets the sprite acordingly
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
@@ -83,13 +111,14 @@ public class PlayerScript : MonoBehaviour
         }
 
         // Start a dash
-        if (dashRequested && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
+        if (dashRequested && dashesleft > 0 && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
         {
             isDashing = true;
+            dashesleft--;
             dashTimeCounter = dashTime;
             rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, dashGravity);
 
-            // Lock direction: input direction, or the way the player is facing if standing still
+            // lock the dash direction
             dashDirection = horizontal != 0f ? horizontal : (isFacingRight ? 1f : -1f);
 
             rigid2D.gravityScale = dashGravity;
@@ -111,6 +140,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    // For debug hitbox
     private void OnDrawGizmos()
     {
         if (hitBox == null) return;
@@ -125,6 +155,6 @@ public class PlayerScript : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapBox(hitBox.position, hitBoxSize, 0.2f, floorGrass);
+        return Physics2D.OverlapBox(hitBox.position, hitBoxSize, 0f, floorGrass);
     }
 }

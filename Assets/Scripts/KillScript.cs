@@ -5,6 +5,9 @@ public class KillScript : MonoBehaviour
     private Vector2 respawnLocation = new Vector2(0f, 0f);
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private GameObject deathSmoke;
+    
+
+    private Vector2 hitBoxSize = new Vector2(0.93f, 0.1f);
     private float smokeLifetime = 0.4f;
 
     void Update()

@@ -6,7 +6,7 @@ public class FollowCamera : MonoBehaviour
     private float smoothTime = 0.25f;
     private float edgeMapLeft = 1.5f;
 
-    private float maxTilt = 5f;          // max degrees of tilt
+    private float maxTilt = 2f;          // max degrees of tilt
     private float tiltPerSpeed = 0.5f;     // degrees per unit of speed
     private float tiltSmoothTime = 0.4f;
 

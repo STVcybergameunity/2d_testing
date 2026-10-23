@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class JumpScript : MonoBehaviour
@@ -11,6 +12,7 @@ public class JumpScript : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private LayerMask floorGrass;
+    [SerializeField] private bool isInAir = false;
     // Update is called once per frame
     void Update()
     {
@@ -19,8 +21,10 @@ public class JumpScript : MonoBehaviour
 
     private void Jump()
     {
+        bool grounded = IsGrounded();
         // Allows the player to jump slightly after faling off a platform
-        if (IsGrounded())
+        isInAir = !grounded;
+        if (grounded)
         {
             coyoteTimeCounter = coyoteTime;
         }
@@ -42,7 +46,8 @@ public class JumpScript : MonoBehaviour
         // If you are on the ground allow jumping
         if (jumpbufferCounter > 0 && coyoteTimeCounter > 0f)
         {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.y, jumpingPower);
+            // keep the horizontal speed (x), only set the vertical speed (y)
+            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, jumpingPower);
 
             jumpbufferCounter = 0f;
         }
@@ -50,13 +55,13 @@ public class JumpScript : MonoBehaviour
         // Allows the player to let go early to start falling down
         if (Input.GetKeyUp(KeyCode.Space) && rigid2D.linearVelocity.y > 0f)
         {
-            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.y, rigid2D.linearVelocity.y * 0.5f);
+            rigid2D.linearVelocity = new Vector2(rigid2D.linearVelocity.x, rigid2D.linearVelocity.y * 0.5f);
 
             coyoteTimeCounter = 0f;
         }
     }
     private bool IsGrounded()
     {
-        return Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0.2f, floorGrass);
+        return Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, floorGrass);
     }
 }
