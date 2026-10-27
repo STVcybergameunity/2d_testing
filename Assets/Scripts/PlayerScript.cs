@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
@@ -24,7 +25,7 @@ public class PlayerScript : MonoBehaviour
     private Vector2 hitBoxSize = new Vector2(0.93f, 0.1f);
     [SerializeField] private LayerMask floorGrass;
     [SerializeField] private Transform hitBox;
-    [SerializeField] private Rigidbody2D rigid2D;
+    [SerializeField] public Rigidbody2D rigid2D;
 
 
     void Start()
@@ -41,8 +42,6 @@ public class PlayerScript : MonoBehaviour
 
         checkAnimation();
 
-        Flip();
-
         if (dashesleft > 0)
         {
             if (Input.GetKeyDown(KeyCode.RightShift))
@@ -54,6 +53,7 @@ public class PlayerScript : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Flip();
         Dash();
 
         if (isDashing)
@@ -83,11 +83,11 @@ public class PlayerScript : MonoBehaviour
     {
         float move = Input.GetAxisRaw("Horizontal");
         bool grounded = IsGrounded();
+        float verticalVelY = rigid2D.linearVelocity.y;
 
-        // isMoving is only true on the ground, so it can't conflict with jump/fall in the air
         animator.SetBool("isMoving", grounded && move != 0);
-        animator.SetBool("isJumpingUp", rigid2D.linearVelocity.y > 0.01f);
-        animator.SetBool("isFalling", rigid2D.linearVelocity.y < -0.01f);
+        animator.SetBool("isJumpingUp", !grounded && verticalVelY > 0f);
+        animator.SetBool("isFalling", !grounded && verticalVelY <= 0f);
     }
 
     private void Flip()
@@ -151,6 +151,11 @@ public class PlayerScript : MonoBehaviour
     public void AddDash()
     {
         dashesleft++;
+    }
+
+    public void SetDash(float dashAmount)
+    {
+        dashesleft = dashAmount;
     }
 
     private bool IsGrounded()
