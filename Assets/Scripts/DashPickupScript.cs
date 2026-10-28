@@ -10,6 +10,7 @@ public class DashPickupScript : MonoBehaviour
     private bool collected = false;
     private PlayerScript player;
     private SpriteRenderer[] sprites;
+    private Vector3 MousePos;
 
     void Start()
     {
@@ -20,6 +21,13 @@ public class DashPickupScript : MonoBehaviour
     void Update()
     {
         if (player == null) return;
+
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     MousePos = Input.mousePosition;
+
+        //     player.rigid2D.position.
+        // }
 
         if (!collected && IsHit())
         {

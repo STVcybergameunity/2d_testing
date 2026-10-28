@@ -16,9 +16,10 @@ public class PlayerScript : MonoBehaviour
     private float dashGravity = 0f;
     private float dashSpeedMultiplier = 3f;
     private float dashTime = 0.35f;
-    private float dashCooldown = 5.5f;
+    // private float dashCooldown = 5.5f;
     private float dashTimeCounter;
-    private float dashCooldownCounter;
+
+    // private float dashCooldownCounter;
     private float dashDirection;
     [SerializeField] private float dashesleft = 0;
     [SerializeField] private bool isOnGround;
@@ -62,7 +63,7 @@ public class PlayerScript : MonoBehaviour
         }
 
         // currentSpeed is based on pressing shift or not base speed is faster the holding it
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? speed : runSpeed;
+        float currentSpeed = Input.GetKey(KeyCode.S) ? speed : runSpeed;
         // check if u are standing still on the ground to prevent sliding off ledges
         bool idleOnGround = IsGrounded() && horizontal == 0f && rigid2D.linearVelocity.y <= 0.01f;
 
@@ -105,13 +106,13 @@ public class PlayerScript : MonoBehaviour
     private void Dash()
     {
         // Cooldown countdown
-        if (dashCooldownCounter > 0f)
-        {
-            dashCooldownCounter -= Time.fixedDeltaTime;
-        }
+        // if (dashCooldownCounter > 0f)
+        // {
+        //     dashCooldownCounter -= Time.fixedDeltaTime;
+        // }
 
         // Start a dash
-        if (dashRequested && dashesleft > 0 && !isDashing && dashCooldownCounter <= 0f && !IsGrounded())
+        if (dashRequested && dashesleft > 0 && !isDashing && !IsGrounded()) // dashCooldownCounter can be readded.
         {
             isDashing = true;
             dashesleft--;
@@ -135,7 +136,6 @@ public class PlayerScript : MonoBehaviour
             {
                 isDashing = false;
                 rigid2D.gravityScale = baseGravity;
-                dashCooldownCounter = dashCooldown; // cooldown starts when the dash ends
             }
         }
     }
