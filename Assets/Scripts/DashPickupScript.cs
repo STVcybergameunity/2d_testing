@@ -8,22 +8,46 @@ public class DashPickupScript : MonoBehaviour
     [SerializeField] private Transform hitBox;
 
     private bool collected = false;
+    private PlayerScript player;
+    private SpriteRenderer[] sprites;
+    private Vector3 MousePos;
+
+    void Start()
+    {
+        player = FindFirstObjectByType<PlayerScript>();
+        sprites = GetComponentsInChildren<SpriteRenderer>();
+    }
 
     void Update()
     {
+        if (player == null) return;
+
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     MousePos = Input.mousePosition;
+
+        //     player.rigid2D.position.
+        // }
+
         if (!collected && IsHit())
         {
             collected = true;
-
-            PlayerScript player = FindFirstObjectByType<PlayerScript>();
-
-            if (player != null)
-            {
-                player.AddDash();
-            }
-
-            Destroy(gameObject);
+            player.AddDash();
+            SetVisible(false);
         }
+
+        if (collected && player.rigid2D.position.y < -6)
+        {
+            player.SetDash(0);
+            collected = false;
+            SetVisible(true);
+        }
+    }
+
+    private void SetVisible(bool visible)
+    {
+        foreach (var sprite in sprites)
+            sprite.enabled = visible;
     }
 
     private bool IsHit()
